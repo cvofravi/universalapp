@@ -1,4 +1,4 @@
-package com.edward.restproject.universalapp.config;
+package com.codingmould.restproject.dailystandup.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

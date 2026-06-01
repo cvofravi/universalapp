@@ -1,10 +1,10 @@
-package com.edward.restproject.universalapp;
+package com.codingmould.restproject.dailystandup;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class UniversalappApplicationTests {
+class DailyStandupApplicationTests {
 
 	@Test
 	void contextLoads() {

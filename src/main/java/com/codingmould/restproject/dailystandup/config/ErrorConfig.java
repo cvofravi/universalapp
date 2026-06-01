@@ -1,4 +1,4 @@
-package com.edward.restproject.universalapp.config;
+package com.codingmould.restproject.dailystandup.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.web.servlet.error.ErrorController;

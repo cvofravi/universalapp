@@ -1,4 +1,4 @@
-package com.edward.restproject.universalapp.standup;
+package com.codingmould.restproject.dailystandup.standup;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
