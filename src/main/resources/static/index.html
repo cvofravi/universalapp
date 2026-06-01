@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Standup</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 0.25rem;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #64748b;
+      margin-bottom: 2.5rem;
+      font-size: 0.9rem;
+    }
+
+    .nav {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .nav button {
+      padding: 0.65rem 1.4rem;
+      border: none;
+      border-radius: 9999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid #334155;
+    }
+
+    .nav button:hover {
+      background: #334155;
+      color: #e2e8f0;
+      transform: translateY(-1px);
+    }
+
+    .nav button.active {
+      background: #0ea5e9;
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 0 16px rgba(14,165,233,0.4);
+    }
+
+    .panel {
+      display: none;
+      max-width: 680px;
+      margin: 0 auto;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 2rem;
+    }
+
+    .panel.active { display: block; }
+
+    .panel h2 {
+      font-size: 1.2rem;
+      color: #38bdf8;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.4rem;
+    }
+
+    textarea, input[type="text"], input[type="number"], input[type="date"] {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #e2e8f0;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      margin-bottom: 1.2rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    textarea:focus, input:focus {
+      border-color: #0ea5e9;
+    }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    .hint {
+      font-size: 0.75rem;
+      color: #475569;
+      margin-top: -1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .btn-primary {
+      background: #0ea5e9;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.75rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.18s, transform 0.1s;
+    }
+
+    .btn-primary:hover { background: #38bdf8; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .result {
+      margin-top: 1.5rem;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 1.25rem;
+      display: none;
+    }
+
+    .result.visible { display: block; }
+
+    .result pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #94a3b8;
+    }
+
+    .standup-card {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .standup-card h3 {
+      color: #38bdf8;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .standup-card .meta {
+      font-size: 0.75rem;
+      color: #475569;
+      margin-bottom: 0.75rem;
+    }
+
+    .standup-card .section { margin-bottom: 0.6rem; }
+
+    .standup-card .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #64748b;
+      margin-bottom: 0.2rem;
+    }
+
+    .standup-card .section-body {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      white-space: pre-wrap;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #164e63;
+      color: #38bdf8;
+      border-radius: 6px;
+      padding: 0.1rem 0.5rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      margin-right: 0.4rem;
+      vertical-align: middle;
+    }
+
+    .error { color: #f87171; font-size: 0.88rem; }
+    .empty { color: #475569; font-size: 0.9rem; text-align: center; padding: 1rem 0; }
+
+    .row { display: flex; gap: 1rem; }
+    .row > * { flex: 1; }
+
+    .loader {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid #334155;
+      border-top-color: #38bdf8;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<h1>Daily Standup</h1>
+<p class="subtitle">Track your daily progress</p>
+
+<nav class="nav">
+  <button class="active" onclick="show('submit')">✏️ Submit Standup</button>
+  <button onclick="show('today')">📅 Today's Standup</button>
+  <button onclick="show('history')">📋 History</button>
+  <button onclick="show('lookup')">🔍 Lookup by ID</button>
+</nav>
+
+<!-- SUBMIT -->
+<div class="panel active" id="panel-submit">
+  <h2>✏️ Submit a Standup</h2>
+  <label>Yesterday <span style="color:#475569;font-weight:400;text-transform:none">(one item per line)</span></label>
+  <textarea id="s-yesterday" placeholder="Finished auth module&#10;Fixed login bug"></textarea>
+
+  <label>Today <span style="color:#475569;font-weight:400;text-transform:none">(one item per line)</span></label>
+  <textarea id="s-today" placeholder="Start standup API&#10;Write tests"></textarea>
+
+  <label>Blockers</label>
+  <textarea id="s-blockers" placeholder="None" style="min-height:60px"></textarea>
+
+  <label>Date <span style="color:#475569;font-weight:400;text-transform:none">(optional — defaults to today)</span></label>
+  <input type="date" id="s-date" />
+
+  <button class="btn-primary" onclick="submitStandup()">Submit Standup</button>
+  <div class="result" id="result-submit"></div>
+</div>
+
+<!-- TODAY -->
+<div class="panel" id="panel-today">
+  <h2>📅 Today's Standup</h2>
+  <button class="btn-primary" onclick="fetchToday()">Load Today's Standup</button>
+  <div class="result" id="result-today"></div>
+</div>
+
+<!-- HISTORY -->
+<div class="panel" id="panel-history">
+  <h2>📋 Standup History</h2>
+  <button class="btn-primary" onclick="fetchHistory()">Load All Standups</button>
+  <div class="result" id="result-history"></div>
+</div>
+
+<!-- LOOKUP -->
+<div class="panel" id="panel-lookup">
+  <h2>🔍 Lookup by ID</h2>
+  <label>Standup ID</label>
+  <input type="number" id="lookup-id" placeholder="e.g. 1" min="1" />
+  <button class="btn-primary" onclick="fetchById()">Find Standup</button>
+  <div class="result" id="result-lookup"></div>
+</div>
+
+<script>
+  const panels = ['submit', 'today', 'history', 'lookup'];
+
+  function show(name) {
+    panels.forEach(p => {
+      document.getElementById('panel-' + p).classList.toggle('active', p === name);
+    });
+    document.querySelectorAll('.nav button').forEach((btn, i) => {
+      btn.classList.toggle('active', panels[i] === name);
+    });
+  }
+
+  function loading(el) {
+    el.classList.add('visible');
+    el.innerHTML = '<span class="loader"></span> Loading…';
+  }
+
+  function renderCard(entry) {
+    const blockers = entry.blockers && entry.blockers.trim() ? entry.blockers : 'None';
+    const submitted = new Date(entry.submittedAt).toLocaleString();
+    return `
+      <div class="standup-card">
+        <h3><span class="badge">#${entry.id}</span> ${entry.standupDate}</h3>
+        <div class="meta">Submitted: ${submitted}</div>
+        <div class="section">
+          <div class="section-label">Yesterday</div>
+          <div class="section-body">${escHtml(entry.yesterday || '—')}</div>
+        </div>
+        <div class="section">
+          <div class="section-label">Today</div>
+          <div class="section-body">${escHtml(entry.today || '—')}</div>
+        </div>
+        <div class="section">
+          <div class="section-label">Blockers</div>
+          <div class="section-body">${escHtml(blockers)}</div>
+        </div>
+      </div>`;
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  async function submitStandup() {
+    const el = document.getElementById('result-submit');
+    loading(el);
+    const body = {
+      yesterday: document.getElementById('s-yesterday').value,
+      today:     document.getElementById('s-today').value,
+      blockers:  document.getElementById('s-blockers').value,
+    };
+    const date = document.getElementById('s-date').value;
+    if (date) body.standupDate = date;
+
+    try {
+      const res = await fetch('/standup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      el.innerHTML = '<div style="color:#4ade80;font-weight:600;margin-bottom:1rem">✓ Submitted successfully</div>' + renderCard(data);
+    } catch (e) {
+      el.innerHTML = `<span class="error">Error: ${e.message}</span>`;
+    }
+  }
+
+  async function fetchToday() {
+    const el = document.getElementById('result-today');
+    loading(el);
+    try {
+      const res = await fetch('/standup/today');
+      if (!res.ok) throw new Error((await res.json()).message || res.statusText);
+      el.innerHTML = renderCard(await res.json());
+    } catch (e) {
+      el.innerHTML = `<span class="error">Error: ${e.message}</span>`;
+    }
+  }
+
+  async function fetchHistory() {
+    const el = document.getElementById('result-history');
+    loading(el);
+    try {
+      const res = await fetch('/standup/history');
+      if (!res.ok) throw new Error(res.statusText);
+      const data = await res.json();
+      if (!data.length) {
+        el.innerHTML = '<div class="empty">No standups found.</div>';
+      } else {
+        el.innerHTML = data.map(renderCard).join('');
+      }
+    } catch (e) {
+      el.innerHTML = `<span class="error">Error: ${e.message}</span>`;
+    }
+  }
+
+  async function fetchById() {
+    const id = document.getElementById('lookup-id').value.trim();
+    const el = document.getElementById('result-lookup');
+    if (!id) { el.classList.add('visible'); el.innerHTML = '<span class="error">Please enter an ID.</span>'; return; }
+    loading(el);
+    try {
+      const res = await fetch(`/standup/${id}`);
+      if (!res.ok) throw new Error((await res.json()).message || res.statusText);
+      el.innerHTML = renderCard(await res.json());
+    } catch (e) {
+      el.innerHTML = `<span class="error">Error: ${e.message}</span>`;
+    }
+  }
+
+  // Allow Enter key on lookup field
+  document.getElementById('lookup-id').addEventListener('keydown', e => {
+    if (e.key === 'Enter') fetchById();
+  });
+
+  // Default date to today
+  document.getElementById('s-date').value = new Date().toISOString().slice(0, 10);
+</script>
+</body>
+</html>
